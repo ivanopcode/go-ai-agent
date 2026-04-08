@@ -29,16 +29,18 @@ Every piece of context that enters the agent's prompt must be explicit and trace
 
 ### Skills over Protocols
 
-Extensibility through **skills** — focused, composable units of capability — not through intermediary protocols.
+Extensibility through **skills** — structured instructions that expand the agent's knowledge, not its runtime.
 
-MCP (Model Context Protocol) adds indirection, runtime discovery, and opacity for the same goal that skills achieve directly: giving the agent access to external tools and data. Skills are simpler and more controlled:
+A skill is a `SKILL.md` file with YAML frontmatter (name, description, triggers) and a markdown body (workflows, rules, references). The agent loads a skill into its context when a trigger matches, then executes the task using its existing tools (bash, read, write). No new runtime capabilities needed — skills teach the agent **how** to use what it already has.
 
-- A skill is Go code, registered at startup, with a known interface
-- If a skill needs external data, it fetches it directly — no protocol layer in between
-- Skills are opt-in via project config, not auto-discovered from global paths
-- Global skills (`~/.config/agent/skills/`) exist but are never loaded unless explicitly listed in the project config. If it's not in the config, it doesn't exist.
+This replaces MCP (Model Context Protocol), which solves the same problem — extensibility — through a runtime protocol layer with dynamic discovery, handshake, and invocation. MCP adds indirection and opacity. Skills are just documents:
 
-The focus is on making skill integration effective: easy to write, easy to compose, easy to inspect what's loaded and why.
+- **No protocol layer.** A skill is a file, not a service. No discovery, no handshake, no transport.
+- **Progressive disclosure.** Frontmatter (~100 words) is always visible for triggering. Body loads only when triggered. Bundled references/scripts load on demand. Context window is not wasted.
+- **Opt-in via project config.** Global skills (`~/.config/agent/skills/`) exist but are never loaded unless explicitly listed in the project config. If it's not in the config, it doesn't exist.
+- **Inspectable.** You can read every skill the agent has access to. The merge order is explicit. No magic.
+
+Skills can bundle scripts and reference docs, but these are executed by existing tools (bash runs a script, read loads a reference), not by a plugin runtime.
 
 ### Transparent Orchestration
 
@@ -79,7 +81,7 @@ A compiled Go binary that implements a ReAct agent loop with pluggable tools and
 - Permission system (yolo mode for now)
 - OAuth
 - Web UI
-- Skills (opt-in only when implemented, see Philosophy)
+- Skills (format is defined, runtime loading is deferred — see Philosophy)
 
 ### Rejected
 
@@ -253,7 +255,7 @@ Binary size: ~8-12MB.
 In rough priority order:
 
 1. **Compaction** — token counting + LLM summarization
-2. **Skills** — opt-in, explicit, project-config-driven
+2. **Skills** — SKILL.md loading by triggers, opt-in via project config, progressive disclosure
 3. **Edit tool** — diff-based file editing
 4. **Multiple providers** — Anthropic Messages API, etc.
 5. **Transparent sub-agents** — requires design work (see Philosophy)
