@@ -39,6 +39,7 @@ This replaces MCP (Model Context Protocol), which solves the same problem — ex
 - **Progressive disclosure.** Frontmatter (~100 words) is always visible for triggering. Body loads only when triggered. Bundled references/scripts load on demand. Context window is not wasted.
 - **Opt-in via project config.** Global skills (`~/.config/agent/skills/`) exist but are never loaded unless explicitly listed in the project config. If it's not in the config, it doesn't exist.
 - **Inspectable.** You can read every skill the agent has access to. The merge order is explicit. No magic.
+- **Project-level context assembly.** The project spec defines not just *which* skills are loaded, but *how* their contexts compose — order, priority, which parts of a skill's body are included or excluded. The agent runtime reads this spec and assembles the final context accordingly. In Codex CLI / Claude Code, this assembly happens inside the runtime opaquely. Here, the project owns the recipe.
 
 Skills can bundle scripts and reference docs, but these are executed by existing tools (bash runs a script, read loads a reference), not by a plugin runtime.
 
